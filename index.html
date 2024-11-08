@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container" id="loginPanel">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username"><br><br>
+        <input type="password" id="password" placeholder="Password"><br><br>
+        <button class="button" onclick="authenticateUser()">Login</button>
+    </div>
+
+    <div class="container" id="dashboard">
+        <h2>Dashboard</h2>
+
+        <div class="user-details">
+            <p>Welcome, <span id="userDisplayName"></span>!</p>
+        </div>
+
+        <select id="sortOptions" onchange="sortUsers()">
+            <option value="default">Sort By</option>
+            <option value="name">Alphabetical</option>
+        </select>
+        <button class="button" onclick="addUser()">Add User</button>
+        <button class="button logout-button" onclick="logout()">Logout</button>
+
+        <ul id="userList">
+        </ul>
+    </div>
+
+    <script>
+        function authenticateUser() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            if (username === "admin" && password === "password") {
+                document.getElementById("loginPanel").style.display = "none";
+                document.getElementById("dashboard").style.display = "block";
+                document.getElementById("userDisplayName").textContent = username;
+                fetchGitHubUsers();
+            } else {
+                alert("Invalid login details");
+            }
+        }
+
+        function logout() {
+            document.getElementById("dashboard").style.display = "none";
+            document.getElementById("loginPanel").style.display = "block";
+            document.getElementById("username").value = '';
+            document.getElementById("password").value = '';
+        }
+
+        function addUser() {
+            alert("Add user functionality coming soon!");
+        }
+
+        async function fetchGitHubUsers() {
+            try {
+                const response = await fetch('https://api.github.com/users');
+                const users = await response.json();
+                const topUsers = users.slice(0, 10);
+                displayUsers(topUsers);
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        }
+
+        function displayUsers(users) {
+            const userList = document.getElementById("userList");
+            userList.innerHTML = ""; 
+            users.forEach(user => {
+                const listItem = document.createElement("li");
+                const link = document.createElement("a");
+                link.href = user.html_url;
+                link.target = "_blank";
+                link.textContent = user.login;
+                listItem.appendChild(link);
+                userList.appendChild(listItem);
+            });
+        }
+
+        function sortUsers() {
+            const userList = document.getElementById("userList");
+            const sortOption = document.getElementById("sortOptions").value;
+            let itemsArray = Array.from(userList.getElementsByTagName("li"));
+
+            if (sortOption === "name") {
+                itemsArray.sort((a, b) => 
+                    a.textContent.localeCompare(b.textContent)
+                );
+                itemsArray.forEach(item => userList.appendChild(item)); // Append sorted items
+            }
+        }
+    </script>
+
+</body>
+</html>
